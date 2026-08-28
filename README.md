@@ -1,35 +1,35 @@
 # Comment Tree
 
-API REST para gerenciamento de comentários associados a posts, desenvolvida com Node.js, Express 5 e TypeScript.
+API REST simples para gerenciamento de comentários associados a posts, desenvolvida com Node.js, Express 5 e TypeScript.
 
-O projeto foi construído com foco no estudo de **middlewares**, **tipagem com TypeScript**, composição de rotas e controle de autorização em uma API HTTP.
+Este é um projeto de estudo, feito para fixar conceitos de roteamento e middlewares no Express: composição de rotas, cadeia de middlewares, tipagem com TypeScript e controle básico de autorização em uma API HTTP.
 
 ## Tecnologias
 
 - Node.js
 - Express 5
 - TypeScript
-- tsx
+- tsx (execução TypeScript em modo de desenvolvimento)
 
-As dependências e scripts disponíveis estão definidos no `package.json`. fileciteturn3file0L2-L2
+As dependências e scripts disponíveis estão definidos no `package.json`.
 
 ## Funcionalidades
 
 A API atualmente permite:
 
-- Listar comentários de um post.
-- Criar comentários.
-- Excluir comentários.
-- Verificar se o post existe antes de executar a operação.
-- Identificar o usuário através do header `x-user-id`.
-- Validar o conteúdo dos comentários.
-- Verificar se o usuário é proprietário do comentário antes da exclusão.
+- Listar comentários de um post
+- Criar comentários
+- Excluir comentários
+- Verificar se o post existe antes de executar a operação
+- Identificar o usuário através do header `x-user-id`
+- Validar o conteúdo dos comentários
+- Verificar se o usuário é proprietário do comentário antes da exclusão
 
-A aplicação registra os dados em memória, sem banco de dados, utilizando arrays para posts e comentários. fileciteturn7file0L2-L2
+A aplicação registra os dados em memória, sem banco de dados, utilizando arrays para posts e comentários. Ou seja, os dados são perdidos a cada reinicialização do servidor.
 
 ## Estrutura
 
-```text
+```
 src/
 ├── app.ts
 ├── datas.ts
@@ -43,13 +43,13 @@ src/
     └── comments.ts
 ```
 
-A aplicação monta as rotas de comentários em `/posts/:postId/comments`. fileciteturn5file0L2-L2
+A aplicação monta as rotas de comentários em `/posts/:postId/comments`.
 
 ## Como executar
 
 Clone o repositório e instale as dependências:
 
-```bash
+```
 git clone https://github.com/GustavoGuerato/comment-tree.git
 cd comment-tree
 npm install
@@ -57,11 +57,11 @@ npm install
 
 Inicie o servidor em modo de desenvolvimento:
 
-```bash
+```
 npm run dev
 ```
 
-O servidor será iniciado na porta `3000`. fileciteturn5file0L2-L2
+O servidor será iniciado na porta `3000`.
 
 ## Endpoints
 
@@ -71,17 +71,17 @@ Retorna todos os comentários associados ao post informado.
 
 Exemplo:
 
-```http
+```
 GET /posts/1/comments
 ```
 
 Resposta:
 
-```json
+```
 []
 ```
 
-O `postId` precisa corresponder a um post existente. Caso contrário, a API retorna `404`. fileciteturn8file0L2-L2
+O `postId` precisa corresponder a um post existente. Caso contrário, a API retorna `404`.
 
 ### POST `/posts/:postId/comments`
 
@@ -89,7 +89,7 @@ Cria um novo comentário.
 
 É necessário enviar o header `x-user-id` para identificar o usuário:
 
-```http
+```
 POST /posts/1/comments
 Content-Type: application/json
 x-user-id: user-123
@@ -97,7 +97,7 @@ x-user-id: user-123
 
 Body:
 
-```json
+```
 {
   "text": "Meu primeiro comentário"
 }
@@ -105,7 +105,7 @@ Body:
 
 Resposta esperada:
 
-```json
+```
 {
   "id": "uuid",
   "postId": "1",
@@ -114,7 +114,7 @@ Resposta esperada:
 }
 ```
 
-O campo `text` deve ser uma string com entre 1 e 280 caracteres. fileciteturn10file0L2-L2
+O campo `text` deve ser uma string com entre 1 e 280 caracteres. Se o post não existir, a API retorna `404`.
 
 ### DELETE `/posts/:postId/comments/:commentId`
 
@@ -122,32 +122,27 @@ Remove um comentário.
 
 É necessário enviar o `x-user-id` correspondente ao proprietário do comentário:
 
-```http
+```
 DELETE /posts/1/comments/{commentId}
 x-user-id: user-123
 ```
 
-A API verifica se o comentário existe e se pertence ao usuário identificado antes de removê-lo. fileciteturn11file0L2-L2
-
-Em caso de sucesso, retorna `204 No Content`.
+A API verifica se o comentário existe e se pertence ao usuário identificado antes de removê-lo. Se o usuário não for o proprietário, retorna `403`. Em caso de sucesso, retorna `204 No Content`.
 
 ## Middleware
 
 O projeto utiliza uma cadeia de middlewares para separar responsabilidades:
 
-`checkPostExists` verifica a existência do post antes de continuar a requisição. fileciteturn8file0L2-L2
-
-`identifyUser` obtém o usuário através do header `x-user-id` e adiciona `userId` ao objeto `request`. fileciteturn9file0L2-L2
-
-`validateCommentBody` valida o campo `text` recebido no body da requisição. fileciteturn10file0L2-L2
-
-`checkCommentOwnership` garante que somente o usuário proprietário possa excluir o comentário. fileciteturn11file0L2-L2
+- `checkPostExists` verifica a existência do post antes de continuar a requisição.
+- `identifyUser` obtém o usuário através do header `x-user-id` e adiciona `userId` ao objeto `request`.
+- `validateCommentBody` valida o campo `text` recebido no body da requisição.
+- `checkCommentOwnership` garante que somente o usuário proprietário possa excluir o comentário.
 
 ## Tipagem
 
 Os principais modelos da aplicação são definidos em TypeScript:
 
-```ts
+```
 interface Post {
   id: string;
   title: string;
@@ -161,11 +156,11 @@ interface Comment {
 }
 ```
 
-Também existe uma extensão de `Request` chamada `UserRequest`, utilizada para representar requisições que podem conter o `userId`. fileciteturn6file0L2-L2
+Também existe uma extensão de `Request` chamada `UserRequest`, utilizada para representar requisições que podem conter o `userId`.
 
 ## Status
 
-Projeto em desenvolvimento e utilizado como estudo prático de **Node.js, Express, TypeScript e middlewares**.
+Projeto de estudo, sem pretensão de uso em produção. Foi feito principalmente para praticar roteamento e middlewares no Express.
 
 ## Licença
 
