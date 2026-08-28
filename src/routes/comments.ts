@@ -10,9 +10,21 @@ import { checkCommentOwnership } from "../middlewares/checkCommentOwnership";
 
 import type { UserRequest } from "../types";
 
+interface PostParams {
+  postId: string;
+}
+
+interface CommentParams extends PostParams {
+  commentId: string;
+}
+
+interface CommentBody {
+  text: string;
+}
+
 const router = Router();
 
-router.get("/", checkPostExists, (req, res) => {
+router.get<PostParams>("/", checkPostExists, (req, res) => {
   const postComments = comments.filter(
     (comment) => comment.postId === req.params.postId,
   );
@@ -20,23 +32,15 @@ router.get("/", checkPostExists, (req, res) => {
   res.json(postComments);
 });
 
-router.post(
+router.post<PostParams, object, CommentBody>(
   "/",
   checkPostExists,
   identifyUser,
   validateCommentBody,
-  (req: UserRequest, res) => {
-    const postId = req.params.postId;
-
-    if (typeof postId !== "string") {
-      return res.status(400).json({
-        message: "postId inválido",
-      });
-    }
-
+  (req: UserRequest<PostParams>, res) => {
     const newComment = {
       id: randomUUID(),
-      postId,
+      postId: req.params.postId,
       userId: req.userId!,
       text: req.body.text,
     };
@@ -47,12 +51,12 @@ router.post(
   },
 );
 
-router.delete(
+router.delete<CommentParams>(
   "/:commentId",
   checkPostExists,
   identifyUser,
   checkCommentOwnership,
-  (req: UserRequest, res) => {
+  (req: UserRequest<CommentParams>, res) => {
     const index = comments.findIndex(
       (comment) => comment.id === req.params.commentId,
     );
