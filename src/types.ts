@@ -1,3 +1,4 @@
+import type { ParamsDictionary } from "express-serve-static-core";
 import type { Request } from "express";
 
 export interface Post {
@@ -12,6 +13,8 @@ export interface Comment {
   text: string;
 }
 
-export interface UserRequest extends Request {
+export interface UserRequest<
+  P extends ParamsDictionary = ParamsDictionary,
+> extends Request<P> {
   userId?: string;
 }
